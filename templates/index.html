@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>EVACUATE-X | Premium Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#000;
+  --card:#071023;
+  --card2:#061026;
+  --line:#122042;
+  --text:#e5e7eb;
+  --muted:#93a4c7;
+  --cyan:#22d3ee;
+  --blue:#38bdf8;
+  --gold:#facc15;
+  --orange:#fb923c;
+  --red:#ef4444;
+  --green:#22c55e;
+}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+  background:radial-gradient(circle at 20% 10%, #06143a 0%, #000 55%);
+  color:var(--text);
+}
+
+/* ===== TOP BAR ===== */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(90deg,#030712,#020617,#030712);
+}
+.brand{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.brand b{ letter-spacing:1px; font-size:16px; }
+.brand span{ color:var(--blue); font-size:12px; }
+.status{
+  display:flex; gap:10px; align-items:center;
+  font-size:12px; color:var(--muted);
+}
+.pill{
+  padding:6px 10px;
+  border:1px solid var(--line);
+  background:rgba(7,16,35,.7);
+  border-radius:999px;
+}
+
+/* ===== LAYOUT ===== */
+.wrapper{
+  display:grid;
+  grid-template-columns:86px 1fr 380px;
+  height:calc(100vh - 58px);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  border-right:1px solid var(--line);
+  background:rgba(7,16,35,.45);
+  padding:12px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.tool{
+  height:48px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(7,16,35,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  -webkit-user-select:none;
+  user-select:none;
+  font-weight:700;
+}
+.tool:hover{ transform:translateY(-1px); border-color:rgba(34,211,238,.8); }
+.tool.active{ border-color:var(--cyan); box-shadow:0 0 0 2px rgba(34,211,238,.15) inset; color:var(--cyan); }
+
+/* ===== MAIN ===== */
+.main{
+  padding:14px;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  gap:12px;
+}
+.card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(7,16,35,.85), rgba(7,16,35,.65));
+  border-radius:18px;
+  padding:12px;
+}
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+}
+.hgroup{
+  display:flex; flex-direction:column; gap:4px;
+}
+.hgroup b{ color:var(--blue); letter-spacing:.5px; }
+.hgroup span{ font-size:12px; color:var(--muted); }
+
+.controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+}
+.control{
+  display:flex; align-items:center; gap:6px;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(7,16,35,.7);
+  font-size:12px;
+  color:var(--muted);
+}
+.control input[type="range"]{ width:120px; }
+.control select{
+  background:transparent;
+  color:var(--text);
+  border:0;
+  outline:none;
+}
+.control input[type="checkbox"]{ transform:scale(1.05); }
+
+.btn{
+  padding:10px 12px;
+  border:0;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:800;
+  letter-spacing:.3px;
+}
+.btn.run{
+  background:linear-gradient(135deg, var(--cyan), var(--blue));
+  color:#02101a;
+}
+.btn.run:hover{ opacity:.9 }
+.btn.secondary{
+  background:rgba(7,16,35,.7);
+  border:1px solid var(--line);
+  color:var(--text);
+}
+.btn.secondary:hover{ border-color:rgba(56,189,248,.7) }
+.btn-full{ width:100%; margin-bottom:10px; }
+
+/* ===== GRID ===== */
+.mapWrap{
+  display:flex;
+  gap:12px;
+  align-items:stretch;
+}
+.mapArea{
+  flex:1;
+}
+.grid{
+  display:grid;
+  gap:5px;
+  padding:8px;
+  border-radius:18px;
+  border:1px solid rgba(18,32,66,.9);
+  background:radial-gradient(circle at 40% 10%, rgba(34,211,238,.08), rgba(7,16,35,.65));
+}
+.cell{
+  width:38px; height:38px;
+  border-radius:14px;
+  border:1px solid rgba(18,32,66,.95);
+  background:rgba(7,16,35,.8);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+  cursor:pointer;
+  transition:.12s;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.cell:hover{ transform:scale(1.06); border-color:rgba(34,211,238,.6); }
+.wall{ background:rgba(15,23,42,.95); color:#64748b; }
+.hazard{ background:rgba(239,68,68,.25); border-color:rgba(239,68,68,.55); color:#fecaca; }
+.start{ background:rgba(29,78,216,.8); border-color:rgba(56,189,248,.6); }
+.exit{ background:rgba(22,101,52,.85); border-color:rgba(34,197,94,.6); }
+.path{
+  background:linear-gradient(135deg, var(--gold), var(--orange));
+  border-color:rgba(250,204,21,.7);
+  color:#081018;
+  box-shadow:0 0 18px rgba(251,146,60,.18);
+}
+
+/* ===== RIGHT PANEL (tabs) ===== */
+.right{
+  border-left:1px solid var(--line);
+  background:rgba(7,16,35,.35);
+  padding:12px;
+  overflow:auto;
+}
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.tab{
+  flex:1;
+  text-align:center;
+  padding:9px 8px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(7,16,35,.7);
+  cursor:pointer;
+  font-weight:800;
+  font-size:12px;
+  color:var(--muted);
+}
+.tab.active{
+  color:var(--cyan);
+  border-color:rgba(34,211,238,.8);
+  box-shadow:0 0 0 2px rgba(34,211,238,.12) inset;
+}
+.panelTitle{
+  display:flex; justify-content:space-between; align-items:center;
+  margin:8px 0 10px;
+}
+.panelTitle b{ color:var(--blue); }
+.small{ font-size:12px; color:var(--muted); }
+
+.route{
+  border:1px dashed rgba(18,32,66,.95);
+  background:rgba(7,16,35,.55);
+  border-radius:14px;
+  padding:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+}
+.route:hover{ border-color:rgba(56,189,248,.6) }
+.badges{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  color:var(--muted);
+}
+.badge.score{ color:var(--cyan); border-color:rgba(34,211,238,.45) }
+.badge.risk{ color:#fecaca; border-color:rgba(239,68,68,.4) }
+.badge.step{ color:#fde68a; border-color:rgba(250,204,21,.35) }
+
+pre, textarea{
+  width:100%;
+  background:rgba(7,16,35,.65);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  color:var(--text);
+  font-size:11px;
+  outline:none;
+}
+textarea{ min-height:260px; resize:vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas; }
+
+canvas{
+  width:100%;
+  height:180px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(7,16,35,.6);
+}
+hr{ border:0; border-top:1px solid var(--line); margin:10px 0; }
+.legend{ margin-top:8px; }
+.hidden{ display:none; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <b>EVACUATE-X</b>
+    <span>Premium Evacuation Planner • Backtracking + AI Scoring</span>
+  </div>
+  <div class="status">
+    <div class="pill" id="pillCandidates">Candidates: -</div>
+    <div class="pill" id="pillReturned">Top: -</div>
+    <div class="pill" id="pillParams">R:2 • W:8</div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- SIDEBAR tools -->
+  <div class="sidebar">
+    <div class="tool active" onclick="setMode('empty', this)">◻</div>
+    <div class="tool" onclick="setMode('wall', this)">#</div>
+    <div class="tool" onclick="setMode('hazard', this)">⚠</div>
+    <div class="tool" onclick="setMode('start', this)">S</div>
+    <div class="tool" onclick="setMode('exit', this)">E</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="card">
+      <div class="row">
+        <div class="hgroup">
+          <b>Building Map</b>
+          <span>Hazard bisa dilewati tapi kena penalti score (kecuali Strict Hazard diaktifkan).</span>
+        </div>
+
+        <div class="controls">
+          <div class="control">
+            Radius
+            <input id="radius" type="range" min="1" max="5" value="2" oninput="syncPills()" title="Evacuation radius in cells">
+            <b id="radiusVal">2</b>
+          </div>
+          <div class="control">
+            Bobot Risiko
+            <input id="weight" type="range" min="1" max="15" value="8" oninput="syncPills()" title="Risk weight factor">
+            <b id="weightVal">8</b>
+          </div>
+          <div class="control">
+            Strict Hazard
+            <input id="strict" type="checkbox" onchange="syncPills()" title="Treat hazards as walls">
+          </div>
+
+          <button class="btn secondary" onclick="loadBranching()">Contoh Peta</button>
+          <button class="btn run" onclick="solve()">Cari Top 10 (AI)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mapWrap">
+      <div class="mapArea">
+        <div id="grid" class="grid"></div>
+        <div class="small legend">
+          Legend: S=start • E=exit • #=wall • ⚠=hazard • Jalur terbaik berwarna emas.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="tabs">
+      <div class="tab active" id="tabSolutions" onclick="showTab('solutions')">SOLUSI</div>
+      <div class="tab" id="tabAnalytics" onclick="showTab('analytics')">ANALYTICS</div>
+      <div class="tab" id="tabReport" onclick="showTab('report')">LAPORAN</div>
+    </div>
+
+    <!-- SOLUTIONS -->
+    <div id="panelSolutions">
+      <div class="panelTitle">
+        <b>Top 10 Jalur Aman (AI Score)</b>
+        <span class="small">Score kecil = terbaik</span>
+      </div>
+      <div id="list"></div>
+
+      <hr>
+      <div class="panelTitle">
+        <b>Detail Jalur</b>
+        <span class="small" id="bestLabel">-</span>
+      </div>
+      <pre id="detail">Klik salah satu jalur di atas…</pre>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="panelAnalytics" class="hidden">
+      <div class="panelTitle">
+        <b>Skor Per Solusi</b>
+        <span class="small">Bar chart sederhana</span>
+      </div>
+      <canvas id="chart" width="360" height="180"></canvas>
+      <hr>
+      <pre id="analyticsText">Belum ada data. Jalankan "Cari Top 10 (AI)".</pre>
+    </div>
+
+    <!-- REPORT -->
+    <div id="panelReport" class="hidden">
+      <div class="panelTitle">
+        <b>Laporan Siap-Copas</b>
+        <span class="small">untuk Word / laporan praktikum</span>
+      </div>
+      <button class="btn secondary" class="btn-full" onclick="generateReport()">
+        Generate Laporan Otomatis
+      </button>
+      <textarea id="reportBox" placeholder="Klik tombol Generate Laporan…"></textarea>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ===== STATE ===== */
+const N=10;
+let grid=[], mode="wall";
+let start=[0,0], exit=[9,9];
+let solutions=[]; // {path, steps, risk_sum, score}
+let lastResponse=null;
+
+/* ===== INIT ===== */
+function init(){
+  grid=Array.from({length:N},()=>Array(N).fill(0)); // 0 empty, 1 wall, 2 hazard
+  draw();
+  syncPills();
+}
+
+function setMode(m, el){
+  mode=m;
+  document.querySelectorAll(".tool").forEach(t=>t.classList.remove("active"));
+  if(el) el.classList.add("active");
+}
+
+function syncPills(){
+  const r=document.getElementById("radius").value;
+  const w=document.getElementById("weight").value;
+  document.getElementById("radiusVal").textContent=r;
+  document.getElementById("weightVal").textContent=w;
+  document.getElementById("pillParams").textContent=`R:${r} • W:${w}` + (document.getElementById("strict").checked? " • Strict":"");
+}
+
+/* ===== GRID RENDER ===== */
+function draw(){
+  const g=document.getElementById("grid");
+  g.style.gridTemplateColumns=`repeat(${N},38px)`;
+  g.innerHTML="";
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const d=document.createElement("div");
+      d.className="cell";
+      const v=grid[r][c];
+
+      if(v===1){ d.classList.add("wall"); d.textContent="#"; }
+      if(v===2){ d.classList.add("hazard"); d.textContent="⚠"; }
+
+      if(r===start[0] && c===start[1]){ d.className="cell start"; d.textContent="S"; }
+      if(r===exit[0] && c===exit[1]){ d.className="cell exit"; d.textContent="E"; }
+
+      d.onclick=()=>clickCell(r,c);
+      g.appendChild(d);
+    }
+  }
+}
+
+function clickCell(r,c){
+  if(mode==="wall") grid[r][c]=1;
+  if(mode==="hazard") grid[r][c]=2;
+  if(mode==="empty") grid[r][c]=0;
+  if(mode==="start") start=[r,c];
+  if(mode==="exit") exit=[r,c];
+  draw();
+}
+
+/* ===== SOLVE ===== */
+async function solve(){
+  const radius=parseInt(document.getElementById("radius").value,10);
+  const weight=parseFloat(document.getElementById("weight").value);
+  const strict=document.getElementById("strict").checked;
+
+  // kirim grid apa adanya (0/1/2)
+  const res=await fetch("/solve",{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      grid:grid,
+      start:start,
+      goal:exit,
+      k:10,
+      cap:1500,
+      radius:radius,
+      risk_weight:weight,
+      strict_hazard:strict
+    })
+  });
+
+  const data=await res.json();
+  lastResponse=data;
+
+  if(!data.ok){
+    alert(data.error || "Terjadi error");
+    return;
+  }
+
+  solutions=data.solutions || [];
+  document.getElementById("pillCandidates").textContent=`Candidates: ${data.found_candidates}`;
+  document.getElementById("pillReturned").textContent=`Top: ${data.returned}`;
+
+  showList();
+  drawChart();
+  updateAnalyticsText();
+  showTab("solutions");
+}
+
+function showList(){
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  solutions.forEach((s,i)=>{
+    const d=document.createElement("div");
+    d.className="route";
+    const score=s.score.toFixed(4);
+    const risk=s.risk_sum.toFixed(4);
+
+    d.innerHTML = `
+      <b>Solusi ${i+1}</b>
+      <div class="badges">
+        <span class="badge score">score=${score}</span>
+        <span class="badge step">steps=${s.steps}</span>
+        <span class="badge risk">risk=${risk}</span>
+      </div>
+    `;
+
+    d.onclick=()=>showPath(s, i);
+    list.appendChild(d);
+  });
+
+  if(solutions.length>0){
+    showPath(solutions[0], 0);
+  } else {
+    document.getElementById("detail").textContent="Tidak ada solusi. Coba ubah wall/hazard.";
+    document.getElementById("bestLabel").textContent="-";
+  }
+}
+
+function showPath(sol, idx){
+  draw();
+  const p=sol.path;
+
+  // highlight path
+  p.forEach(([r,c])=>{
+    const el=document.querySelectorAll(".cell")[r*N+c];
+    if(el) el.classList.add("path");
+  });
+
+  document.getElementById("bestLabel").textContent =
+    `Solusi ${idx+1} • score=${sol.score.toFixed(4)} • steps=${sol.steps} • risk=${sol.risk_sum.toFixed(4)}`;
+
+  document.getElementById("detail").textContent =
+    p.map(v=>`(${v[0]},${v[1]})`).join(" → ");
+}
+
+/* ===== TABS ===== */
+function showTab(name){
+  const s=document.getElementById("panelSolutions");
+  const a=document.getElementById("panelAnalytics");
+  const r=document.getElementById("panelReport");
+
+  s.style.display = (name==="solutions") ? "block" : "none";
+  a.style.display = (name==="analytics") ? "block" : "none";
+  r.style.display = (name==="report") ? "block" : "none";
+
+  document.getElementById("tabSolutions").classList.toggle("active", name==="solutions");
+  document.getElementById("tabAnalytics").classList.toggle("active", name==="analytics");
+  document.getElementById("tabReport").classList.toggle("active", name==="report");
+}
+
+/* ===== ANALYTICS (simple canvas chart) ===== */
+function drawChart(){
+  const canvas=document.getElementById("chart");
+  const ctx=canvas.getContext("2d");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if(!solutions || solutions.length===0) return;
+
+  const scores=solutions.map(s=>s.score);
+  const max=Math.max(...scores);
+  const min=Math.min(...scores);
+
+  const pad=18;
+  const w=canvas.width - pad*2;
+  const h=canvas.height - pad*2;
+
+  // axis
+  ctx.globalAlpha=0.65;
+  ctx.strokeStyle="#122042";
+  ctx.lineWidth=1;
+  ctx.strokeRect(pad,pad,w,h);
+  ctx.globalAlpha=1;
+
+  const barW = w / solutions.length;
+
+  solutions.forEach((s,i)=>{
+    const norm = (max===min) ? 1 : (s.score - min)/(max - min);
+    const bh = Math.max(8, h * (1 - norm)); // score kecil = bar tinggi
+    const x = pad + i*barW + 6;
+    const y = pad + (h - bh);
+
+    // bar
+    ctx.fillStyle = "rgba(34,211,238,0.55)";
+    ctx.fillRect(x, y, barW-12, bh);
+
+    // label index
+    ctx.fillStyle = "rgba(229,231,235,0.8)";
+    ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText(String(i+1), x+2, pad+h+14);
+  });
+}
+
+function updateAnalyticsText(){
+  if(!lastResponse || !lastResponse.ok){
+    document.getElementById("analyticsText").textContent="Belum ada data.";
+    return;
+  }
+  const st=lastResponse.stats;
+  const p=lastResponse.params;
+  const best = solutions[0];
+
+  document.getElementById("analyticsText").textContent =
+`[ANALYTICS]
+Grid: ${st.rows}x${st.cols}
+Walls: ${st.walls}
+Hazards: ${st.hazards}
+
+Params:
+- radius = ${p.radius}
+- risk_weight = ${p.risk_weight}
+- strict_hazard = ${p.strict_hazard}
+- candidates_cap = ${p.cap}
+
+Best:
+- score = ${best ? best.score.toFixed(4) : "-"}
+- steps = ${best ? best.steps : "-"}
+- risk_sum = ${best ? best.risk_sum.toFixed(4) : "-"}
+`;
+}
+
+/* ===== REPORT (copy-ready) ===== */
+function generateReport(){
+  if(!lastResponse || !lastResponse.ok){
+    document.getElementById("reportBox").value =
+      "Belum ada hasil. Klik dulu: Cari Top 10 (AI).";
+    return;
+  }
+  const st=lastResponse.stats;
+  const p=lastResponse.params;
+
+  const best = solutions[0];
+  const lines = [];
+  lines.push("LAPORAN PRAKTIKUM – SISTEM EVAKUASI GEDUNG (BACKTRACKING + AI SCORING)");
+  lines.push("===============================================================");
+  lines.push("");
+  lines.push("1. Tujuan");
+  lines.push("   Menemukan beberapa jalur evakuasi (Top 10) menggunakan backtracking, kemudian memilih jalur terbaik berdasarkan skor AI yang mempertimbangkan panjang jalur (steps) dan risiko (kedekatan terhadap hazard).");
+  lines.push("");
+  lines.push("2. Konfigurasi & Parameter");
+  lines.push(`   - Ukuran grid         : ${st.rows} x ${st.cols}`);
+  lines.push(`   - Start (S)           : (${start[0]},${start[1]})`);
+  lines.push(`   - Exit (E)            : (${exit[0]},${exit[1]})`);
+  lines.push(`   - Jumlah wall (#)     : ${st.walls}`);
+  lines.push(`   - Jumlah hazard (⚠)   : ${st.hazards}`);
+  lines.push(`   - Radius risiko (R)   : ${p.radius}`);
+  lines.push(`   - Bobot risiko (W)    : ${p.risk_weight}`);
+  lines.push(`   - Strict hazard       : ${p.strict_hazard} (Jika true, hazard dianggap tembok)`);
+  lines.push(`   - Kandidat path dicari: ${lastResponse.found_candidates} (cap=${p.cap})`);
+  lines.push("");
+  lines.push("3. Rumus Scoring (AI)");
+  lines.push("   - risk_sum: akumulasi risiko tiap langkah berdasarkan jarak ke hazard");
+  lines.push("   - score = steps + (W * risk_sum)");
+  lines.push("   Keterangan: score lebih kecil = jalur lebih aman & efisien.");
+  lines.push("");
+  lines.push("4. Hasil Top 10");
+  solutions.forEach((s,i)=>{
+    lines.push(`   ${i+1}) steps=${s.steps}, risk_sum=${s.risk_sum.toFixed(4)}, score=${s.score.toFixed(4)}`);
+  });
+  lines.push("");
+  lines.push("5. Jalur Terbaik (Best)");
+  if(best){
+    lines.push(`   - steps    : ${best.steps}`);
+    lines.push(`   - risk_sum : ${best.risk_sum.toFixed(4)}`);
+    lines.push(`   - score    : ${best.score.toFixed(4)}`);
+    lines.push(`   - path     : ${best.path.map(v=>`(${v[0]},${v[1]})`).join(" -> ")}`);
+  } else {
+    lines.push("   Tidak ada solusi yang ditemukan.");
+  }
+
+  document.getElementById("reportBox").value = lines.join("\n");
+}
+
+/* ===== SAMPLE MAP ===== */
+function loadBranching(){
+  // contoh peta yang bercabang (biar banyak kandidat)
+  grid=Array.from({length:N},()=>Array(N).fill(0));
+  start=[0,0];
+  exit=[9,9];
+
+  // walls
+  const walls = [
+    [1,1],[1,2],[1,3],[1,6],[1,7],
+    [2,3],[2,6],
+    [3,1],[3,3],[3,4],[3,6],[3,8],
+    [4,1],[4,8],
+    [5,3],[5,6],[5,8],
+    [6,1],[6,2],[6,3],[6,4],[6,6],[6,7],[6,8],
+    [7,4],[7,8],
+    [8,4]
+  ];
+  walls.forEach(([r,c])=>grid[r][c]=1);
+
+  // hazards
+  const hazards = [[2,8],[4,5],[8,1]];
+  hazards.forEach(([r,c])=>grid[r][c]=2);
+
+  draw();
+}
+
+init();
+</script>
+
+</body>
+</html>
